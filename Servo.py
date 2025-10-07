@@ -2,7 +2,7 @@ from machine import Pin, PWM
 from time import sleep
 
 # Use a PWM-capable pin (e.g., GPIO 13)
-servo_pin = PWM(Pin(21), freq=50)
+servo_pin = PWM(Pin(1), freq=50)
 
 # Helper function to set angle (0° to 180°)
 def set_servo_angle(angle):

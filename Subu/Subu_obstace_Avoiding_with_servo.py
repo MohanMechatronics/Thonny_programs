@@ -5,9 +5,9 @@ from Wheels import Wheels
 import Subu
 
 # --- Pin Setup ---
-TRIG_PIN = Subu.IO3
-ECHO_PIN = Subu.IO4
-SERVO_PIN = Subu.IO1
+TRIG_PIN = 38
+ECHO_PIN = 13
+SERVO_PIN = Subu.IO2
 
 # --- Ultrasonic Sensor Class ---
 class Ultrasonic:
@@ -45,23 +45,23 @@ class Servo:
 
 # --- Movement Functions ---
 def move_forward(wheels):
-    wheels.drive_motors(512, 0, 512, 0)
+    wheels.drive_motors(1000, 0, 1000, 0)
 
 def move_backward(wheels):
-    wheels.drive_motors(0, 512, 0, 512)
+    wheels.drive_motors(0, 1000, 0, 1000)
 
 def turn_left(wheels):
-    wheels.drive_motors(512, 0, 0, 512)
+    wheels.drive_motors(1000, 0, 0, 1000)
 
 def turn_right(wheels):
-    wheels.drive_motors(0, 512, 512, 0)
+    wheels.drive_motors(0, 1000, 1000, 0)
 
 def stop_wheels(wheels):
     wheels.drive_motors(0, 0, 0, 0)
 
 # --- Main Logic ---
 def main():
-    wheels = Wheels("LMES2")
+    wheels = Wheels("LMESMP")
     wheels.start_motors()
     sonar = Ultrasonic(TRIG_PIN, ECHO_PIN)
     servo = Servo(SERVO_PIN)
@@ -122,3 +122,4 @@ try:
     main()
 except Exception as e:
     print("Error:", e)
+

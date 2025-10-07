@@ -1,14 +1,15 @@
 from machine import Pin
 from time import sleep
 
-led = Pin(27, Pin.OUT)  # Onboard LED is usually on GPIO 2
+led = Pin(41, Pin.OUT)  # Onboard LED is usually on GPIO 2
 
 while True:
     led.on()      # Turn LED on
     sleep(1)      # Wait 1 second
+    print("ON")
     led.off()     # Turn LED off
     sleep(1)
-
+    print("OFF")
     
 # from machine import Pin, PWM
 # from time import sleep

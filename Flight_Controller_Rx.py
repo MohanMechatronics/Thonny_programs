@@ -1,4 +1,7 @@
-import machine, network, espnow, struct, utime
+import machine, network, espnow, struct, utime, time
+
+# Add delay to allow proper init
+time.sleep(1)
 
 # Wi-Fi in station mode
 w0 = network.WLAN(network.STA_IF)
@@ -13,19 +16,19 @@ def map_range(x, in_min=0, in_max=4095, out_min=1000, out_max=2000):
     return int((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 # Servo control pin (only pin 17 is used)
-servo_pin = 21
+servo_pin = 5
 pwm = machine.PWM(machine.Pin(servo_pin), freq=50)
-servo_pin1 = 22
+servo_pin1 = 8
 pwm1 = machine.PWM(machine.Pin(servo_pin1), freq=50)
 
 # Motor control pins (pins 4, 25, 33, and 32)
-motor_pwm = machine.PWM(machine.Pin(4), freq=50)
+motor_pwm = machine.PWM(machine.Pin(1), freq=50)
 motor_pwm.duty_u16(0)
-motor_pwm1 = machine.PWM(machine.Pin(25), freq=50)
+motor_pwm1 = machine.PWM(machine.Pin(3), freq=50)
 motor_pwm1.duty_u16(0)
-motor_pwm2 = machine.PWM(machine.Pin(33), freq=50)
+motor_pwm2 = machine.PWM(machine.Pin(4), freq=50)
 motor_pwm2.duty_u16(0)
-motor_pwm3 = machine.PWM(machine.Pin(32), freq=50)
+motor_pwm3 = machine.PWM(machine.Pin(48), freq=50)
 motor_pwm3.duty_u16(0)
 
 while True:
