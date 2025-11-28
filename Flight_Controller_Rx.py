@@ -8,17 +8,19 @@ w0 = network.WLAN(network.STA_IF)
 w0.active(True)
 w0.disconnect()
 
+
 # ESP-NOW setup
 e = espnow.ESPNow()
+
 e.active(True)
 
 def map_range(x, in_min=0, in_max=4095, out_min=1000, out_max=2000):
     return int((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 # Servo control pin (only pin 17 is used)
-servo_pin = 5
+servo_pin = 10 # 14
 pwm = machine.PWM(machine.Pin(servo_pin), freq=50)
-servo_pin1 = 8
+servo_pin1 =  9 # 47
 pwm1 = machine.PWM(machine.Pin(servo_pin1), freq=50)
 
 # Motor control pins (pins 4, 25, 33, and 32)
@@ -26,9 +28,9 @@ motor_pwm = machine.PWM(machine.Pin(1), freq=50)
 motor_pwm.duty_u16(0)
 motor_pwm1 = machine.PWM(machine.Pin(3), freq=50)
 motor_pwm1.duty_u16(0)
-motor_pwm2 = machine.PWM(machine.Pin(4), freq=50)
+motor_pwm2 = machine.PWM(machine.Pin(8), freq=50)
 motor_pwm2.duty_u16(0)
-motor_pwm3 = machine.PWM(machine.Pin(48), freq=50)
+motor_pwm3 = machine.PWM(machine.Pin(5), freq=50) #35
 motor_pwm3.duty_u16(0)
 
 while True:
@@ -39,9 +41,9 @@ while True:
         elevator, rudder, not_use, trottel ,not_use1,not_use2 = struct.unpack('6H', msg)
 
         # Control servo with elevator (pin 17 only)
-        duty_us = map_range(elevator)
+        duty_us = map_range(4095 - elevator)
         pwm.duty_u16(int((duty_us / 20000) * 65535))
-        duty_us1 = map_range(rudder)
+        duty_us1 = map_range(4095 - rudder)
         pwm1.duty_u16(int((duty_us1 / 20000) * 65535))
         # Motor speed control only if trottel > 2000
         if trottel > 2000:
@@ -63,3 +65,5 @@ while True:
 
         # Print individual values with names
         print(f"elevator = {elevator}, rudder= {rudder}, trottel = {trottel}")
+
+

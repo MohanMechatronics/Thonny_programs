@@ -31,26 +31,19 @@ def map_servo(x, in_min=0, in_max=4095, out_min=500, out_max=2500):
 def us_to_duty(us, freq=50):
     """Convert microseconds to duty_u16 for given PWM frequency."""
     period = 1000000 // freq  # microseconds per cycle (20ms at 50Hz)
-    return int((us / period) * 65535)
+    duty = int((us / period) * 65535)
+    return max(0, min(65535, duty))  # Clamp safely within range
 
 # Servos
-servo1 = machine.PWM(machine.Pin(9), freq=50)
-servo2 = machine.PWM(machine.Pin(10), freq=50)
+servo_aileron = machine.PWM(machine.Pin(8), freq=50)   # Aileron
+servo_elevator = machine.PWM(machine.Pin(10), freq=50)  # Elevator (moved from 10 to 7)
 
-# Motors (throttle control)
-motors = [
-    machine.PWM(machine.Pin(1), freq=50),
-    machine.PWM(machine.Pin(2), freq=50),
-    machine.PWM(machine.Pin(8), freq=50),
-    machine.PWM(machine.Pin(3), freq=50),
-    
-#     machine.PWM(machine.Pin(1), freq=50),
-#     machine.PWM(machine.Pin(2), freq=50),
-#     machine.PWM(machine.Pin(4), freq=50),
-#     machine.PWM(machine.Pin(5), freq=50),
-]
-for m in motors:
-    m.duty_u16(0)
+# Motors
+motor_low = machine.PWM(machine.Pin(9), freq=50)   # Motor for 0–1900 range
+motor_high = machine.PWM(machine.Pin(7), freq=50) # Motor for 2200–4000 range
+
+motor_low.duty_u16(0)
+motor_high.duty_u16(0)
 
 # ===== Main Loop =====
 client_address = None
@@ -76,18 +69,29 @@ while True:
         if len(data) == 8:
             elevator, rudder, throttle, aileron = struct.unpack("<4H", data)
 
-
             # Servo control
-            duty1 = us_to_duty(map_servo(aileron))
-            servo1.duty_u16(duty1)
+            servo_aileron.duty_u16(us_to_duty(map_servo(aileron)))
+            servo_elevator.duty_u16(us_to_duty(map_servo(elevator)))
 
-            duty2 = us_to_duty(map_servo(elevator))
-            servo2.duty_u16(duty2)
+            # ===== Throttle zone control =====
+            if throttle <= 1900:
+                # Map 0–1900 → 0–65535 for Pin 8
+                motor_speed = int((throttle / 1900) * 65535)
+                motor_speed = max(0, min(65535, motor_speed))
+                motor_low.duty_u16(motor_speed)  # Pin 8 active
+                motor_high.duty_u16(0)           # Pin 10 off
 
-            # Motor throttle control (map 0–4095 → 0–65535)
-            motor_speed = int((throttle / 4095) * 65535)
-            for m in motors:
-                m.duty_u16(motor_speed)
+            elif throttle >= 2200:
+                # Map 2200–4000 → 0–65535 for Pin 10
+                motor_speed = int(((throttle - 2200) / (4000 - 2200)) * 65535)
+                motor_speed = max(0, min(65535, motor_speed))
+                motor_high.duty_u16(motor_speed) # Pin 10 active
+                motor_low.duty_u16(0)            # Pin 8 off
+
+            else:
+                # Dead zone (1900–2200)
+                motor_low.duty_u16(0)
+                motor_high.duty_u16(0)
 
             print(f"ELEV={elevator} RUD={rudder} THR={throttle} AIL={aileron}")
 
@@ -99,5 +103,4 @@ while True:
     except KeyboardInterrupt:
         machine.reset()
         utime.sleep(10)
-
 

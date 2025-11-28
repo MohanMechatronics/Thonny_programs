@@ -34,15 +34,15 @@ def us_to_duty(us, freq=50):
     return int((us / period) * 65535)
 
 # Servos
-servo1 = machine.PWM(machine.Pin(21), freq=50)
-servo2 = machine.PWM(machine.Pin(2), freq=50)
+servo1 = machine.PWM(machine.Pin(10), freq=50) #14
+servo2 = machine.PWM(machine.Pin(9), freq=50) #47
 
 # Motors (throttle control)
 motors = [
-    machine.PWM(machine.Pin(4), freq=50),
-    machine.PWM(machine.Pin(2), freq=50),
+    machine.PWM(machine.Pin(1), freq=50),
     machine.PWM(machine.Pin(3), freq=50),
-    machine.PWM(machine.Pin(5), freq=50),
+    machine.PWM(machine.Pin(8), freq=50),
+    machine.PWM(machine.Pin(35), freq=50),
 ]
 for m in motors:
     m.duty_u16(0)
@@ -71,14 +71,15 @@ while True:
         if len(data) == 8:
             elevator, rudder, throttle, aileron = struct.unpack("<4H", data)
 
-            # Servo control
-            duty1 = us_to_duty(map_servo(elevator))
+            # ===== Servo control =====
+            # Reversed elevator servo
+            duty1 = us_to_duty(map_servo(4095 - elevator))  # reversed
             servo1.duty_u16(duty1)
 
-            duty2 = us_to_duty(map_servo(rudder))
+            duty2 = us_to_duty(map_servo(4095 -aileron))
             servo2.duty_u16(duty2)
 
-            # Motor throttle control (map 0–4095 → 0–65535)
+            # ===== Motor throttle control =====
             motor_speed = int((throttle / 4095) * 65535)
             for m in motors:
                 m.duty_u16(motor_speed)
@@ -90,4 +91,3 @@ while True:
         if client_address and utime.ticks_diff(utime.ticks_ms(), last_packet_time) > CONNECTION_TIMEOUT_MS:
             print("Connection lost. No data received.")
             client_address = None
-

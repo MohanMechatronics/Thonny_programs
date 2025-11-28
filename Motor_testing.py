@@ -64,20 +64,18 @@ class RMC:
 
 # Run the motion sequence in loop
 robot = RMC()
+robot.forward()
+utime.sleep(5)
+robot.stop()
 
-while True:
-    robot.forward()
-    utime.sleep(2)
-    robot.stop()
-
-    robot.backward()
-    utime.sleep(2)
-    robot.stop()
-
-    robot.left()
-    utime.sleep(1)
-    robot.stop()
-
-    robot.right()
-    utime.sleep(1)
-    robot.stop()
+# robot.backward()
+# utime.sleep(2)
+# robot.stop()
+# 
+# robot.left()
+# utime.sleep(1)
+# robot.stop()
+# 
+# robot.right()
+# utime.sleep(1)
+# robot.stop()
