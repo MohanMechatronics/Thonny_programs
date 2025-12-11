@@ -35,12 +35,12 @@ def us_to_duty(us, freq=50):
     return max(0, min(65535, duty))  # Clamp safely within range
 
 # Servos
-servo_aileron = machine.PWM(machine.Pin(8), freq=50)   # Aileron
-servo_elevator = machine.PWM(machine.Pin(10), freq=50)  # Elevator (moved from 10 to 7)
+servo_aileron = machine.PWM(machine.Pin(4), freq=50)   # Aileron
+servo_elevator = machine.PWM(machine.Pin(7), freq=50)  # Elevator (moved from 10 to 7)
 
 # Motors
-motor_low = machine.PWM(machine.Pin(7), freq=50)   # Motor for 0–1900 range
-motor_high = machine.PWM(machine.Pin(9), freq=50) # Motor for 2200–4000 range
+motor_low = machine.PWM(machine.Pin(3), freq=50)   # Motor for 0–1900 range
+motor_high = machine.PWM(machine.Pin(2), freq=50) # Motor for 2200–4000 range
 
 motor_low.duty_u16(0)
 motor_high.duty_u16(0)

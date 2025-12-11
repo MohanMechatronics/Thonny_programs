@@ -1,7 +1,7 @@
 from machine import Pin
 from time import sleep
 
-led = Pin(25, Pin.OUT)  # Onboard LED is usually on GPIO 2
+led = Pin(8, Pin.OUT)  # Onboard LED is usually on GPIO 2
 
 while True:
     led.on()      # Turn LED on
