@@ -5,11 +5,11 @@ import neck
 import ultra
 
 boot_button = machine.Pin(0, machine.Pin.IN, machine.Pin.PULL_UP)  # BOOT button
-led = machine.Pin(27, machine.Pin.OUT) # For testing the program is running
+led = machine.Pin(2, machine.Pin.OUT) # For testing the program is running
 led.on()
 
 robot = motor.car()
-sensor = ultra.Sensor()
+sensor = ultra.sensor()
 servo = neck.servo()
 
 right_dis = 0
@@ -29,12 +29,12 @@ def search():
     servo.angle(90)
     utime.sleep(0.5)
 
-    servo.angle(0)
+    servo.angle(50)
     right_dis = sensor.distance()
     print("Right side = ",right_dis)
     utime.sleep(0.5)
 
-    servo.angle(180)
+    servo.angle(130)
     left_dis = sensor.distance()
     print("Left side = ", left_dis)
     utime.sleep(0.5)

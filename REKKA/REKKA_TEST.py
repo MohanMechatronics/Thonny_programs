@@ -48,6 +48,11 @@ motors = [
 #     machine.PWM(machine.Pin(2), freq=50),
 #     machine.PWM(machine.Pin(4), freq=50),
 #     machine.PWM(machine.Pin(5), freq=50),
+    
+#     machine.PWM(machine.Pin(1), freq=50),
+#     machine.PWM(machine.Pin(3), freq=50),
+#     machine.PWM(machine.Pin(8), freq=50),
+#     machine.PWM(machine.Pin(35), freq=50),
 ]
 for m in motors:
     m.duty_u16(0)

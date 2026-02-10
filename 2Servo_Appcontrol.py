@@ -37,8 +37,8 @@ def us_to_duty(us, freq=50):
 	return int((us / period) * 65535)
 
 # Speed configuration — max speed
-STEP_DEG = 5.0
-DELAY_MS = 8
+STEP_DEG = 8
+DELAY_MS = 7
 
 # Servos
 servo1 = machine.PWM(machine.Pin(10), freq=50) #14

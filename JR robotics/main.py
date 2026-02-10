@@ -454,7 +454,7 @@ while True:
 
         if mode == 0:
             if do_once:
-                print("\nwaiting: SELECT THE ROBOT YOU WANT")
+                print("\nwaiting: __SELECT THE ROBOT YOU WANT__")
                 do_once = 0
             all_off()
             sleep(0.2)
@@ -473,8 +473,8 @@ while True:
             sleep(0.1)
 
         elif mode == 3:
-            en_left.duty(1023)
-            en_right.duty(1023)
+            en_left.duty(850)
+            en_right.duty(850)
 
             middle_now = d_middle()
             if middle_now == 1 and last_middle == 0:
@@ -488,8 +488,8 @@ while True:
             last_middle = middle_now   # update state
 
         elif mode == 3:
-            en_left.duty(1023)
-            en_right.duty(1023)
+            en_left.duty(850)
+            en_right.duty(850)
             previous_state = state
             if d_middle() == 1:
                 if previous_state == 0 and state == 0:
@@ -531,5 +531,4 @@ while True:
         print("error:", e)
         all_off()
         sys.exit()
-
 

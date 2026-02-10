@@ -30,7 +30,7 @@ motor_pwm1 = machine.PWM(machine.Pin(3), freq=50)
 motor_pwm1.duty_u16(0)
 motor_pwm2 = machine.PWM(machine.Pin(8), freq=50)
 motor_pwm2.duty_u16(0)
-motor_pwm3 = machine.PWM(machine.Pin(5), freq=50) #35
+motor_pwm3 = machine.PWM(machine.Pin(35), freq=50) #35
 motor_pwm3.duty_u16(0)
 
 while True:

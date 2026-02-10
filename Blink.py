@@ -1,7 +1,7 @@
 from machine import Pin
 from time import sleep
 
-led = Pin(8, Pin.OUT)  # Onboard LED is usually on GPIO 2
+led = Pin(2, Pin.OUT)  # Onboard LED is usually on GPIO 2
 
 while True:
     led.on()      # Turn LED on
@@ -14,7 +14,7 @@ while True:
 # from machine import Pin, PWM
 # from time import sleep
 # 
-# led = PWM(Pin(3), freq=1000) # GPIO 2 (usually onboard LED), 1 kHz frequency
+# led = PWM(Pin(2), freq=1000) # GPIO 2 (usually onboard LED), 1 kHz frequency
 # 
 # while True:
 #     # Fade in

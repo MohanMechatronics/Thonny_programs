@@ -9,8 +9,8 @@ servo2 = machine.PWM(machine.Pin(9), freq=50)
 # `STEP_DEG` is degrees moved per loop iteration; larger = faster movement
 
 # `DELAY_MS` is pause per loop in milliseconds; smaller = faster movement
-STEP_DEG = 5.0
-DELAY_MS = 8
+STEP_DEG = 8
+DELAY_MS = 7
 
 def angle_to_us(angle):
 	# angle 0-180 -> 500-2500 us

@@ -1,93 +1,67 @@
-import network
-import socket
-import machine
-import struct
-import utime
+import machine, network, espnow, struct, utime, time
 
-# ===== Soft AP Setup =====
-SSID = "RC"
-PASSWORD = "12345678"
+# Add delay to allow proper init
+time.sleep(1)
 
-ap = network.WLAN(network.AP_IF)
-ap.active(True)
-ap.config(essid=SSID, password=PASSWORD, authmode=network.AUTH_WPA_WPA2_PSK)
+# Wi-Fi in station mode
+w0 = network.WLAN(network.STA_IF)
+w0.active(True)
+w0.disconnect()
 
-print("SoftAP created:", SSID)
-print("IP config:", ap.ifconfig())
 
-# ===== UDP Socket Setup =====
-UDP_PORT = 4210
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((ap.ifconfig()[0], UDP_PORT))
-sock.settimeout(1.0)
+# ESP-NOW setup
+e = espnow.ESPNow()
 
-print("Listening on", ap.ifconfig()[0], "port", UDP_PORT)
+e.active(True)
 
-# ===== Servo + Motor Setup =====
-def map_servo(x, in_min=0, in_max=4095, out_min=500, out_max=2500):
-    """Map joystick (0–4095) to servo microseconds (500–2500)."""
+def map_range(x, in_min=0, in_max=4095, out_min=1000, out_max=2000):
     return int((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
-def us_to_duty(us, freq=50):
-    """Convert microseconds to duty_u16 for given PWM frequency."""
-    period = 1000000 // freq  # microseconds per cycle (20ms at 50Hz)
-    return int((us / period) * 65535)
+# Servo control pin (only pin 17 is used)
+servo_pin =  14
+pwm = machine.PWM(machine.Pin(servo_pin), freq=50)
+servo_pin1 =  47
+pwm1 = machine.PWM(machine.Pin(servo_pin1), freq=50)
 
-# Servos
-servo1 = machine.PWM(machine.Pin(10), freq=50) #14
-servo2 = machine.PWM(machine.Pin(9), freq=50) #47
-
-# Motors (throttle control)
-motors = [
-    machine.PWM(machine.Pin(1), freq=50),
-    machine.PWM(machine.Pin(3), freq=50),
-    machine.PWM(machine.Pin(8), freq=50),
-    machine.PWM(machine.Pin(35), freq=50),
-]
-for m in motors:
-    m.duty_u16(0)
-
-# ===== Main Loop =====
-client_address = None
-last_packet_time = utime.ticks_ms()
-CONNECTION_TIMEOUT_MS = 3000
+# Motor control pins (pins 4, 25, 33, and 32)
+motor_pwm = machine.PWM(machine.Pin(1), freq=50)
+motor_pwm.duty_u16(0)
+motor_pwm1 = machine.PWM(machine.Pin(3), freq=50)
+motor_pwm1.duty_u16(0)
+motor_pwm2 = machine.PWM(machine.Pin(8), freq=50)
+motor_pwm2.duty_u16(0)
+motor_pwm3 = machine.PWM(machine.Pin(35), freq=50) #35
+motor_pwm3.duty_u16(0)
 
 while True:
-    try:
-        data, addr = sock.recvfrom(1024)
+    utime.sleep(0.05)
+    host, msg = e.recv()
+    if msg:
+        # Unpack values and label them
+        elevator, rudder, not_use, trottel ,not_use1,not_use2 = struct.unpack('6H', msg)
 
-        if client_address is None:
-            print("Connection successful from:", addr[0])
-        client_address = addr
-        last_packet_time = utime.ticks_ms()
+        # Control servo with elevator (pin 17 only)
+        duty_us = map_range(4095 - elevator)
+        pwm.duty_u16(int((duty_us / 20000) * 65535))
+        duty_us1 = map_range(4095 - rudder)
+        pwm1.duty_u16(int((duty_us1 / 20000) * 65535))
+        # Motor speed control only if trottel > 2000
+        if trottel > 2000:
+            # Scale trottel from 2000–4095 to 0–65535
+#             if trottel < 2300:
+# 				pwm1.duty_u16(0)
+# 				pwm.duty_u16(0)
+            scaled_speed = int(((trottel - 2000) / (4095 - 2000)) * 65535)
+            motor_pwm.duty_u16(scaled_speed)
+            motor_pwm1.duty_u16(scaled_speed)
+            motor_pwm2.duty_u16(scaled_speed)
+            motor_pwm3.duty_u16(scaled_speed)
+        else:
+#  			print("1")
+            motor_pwm.duty_u16(0)
+            motor_pwm1.duty_u16(0)
+            motor_pwm2.duty_u16(0)
+            motor_pwm3.duty_u16(0)
 
-        # Handshake
-        if data == b'PING':
-            sock.sendto(b'PONG', addr)
-            print("Responded to PING from", addr[0])
-            continue
-
-        # Joystick packet (8 bytes expected)
-        if len(data) == 8:
-            elevator, rudder, throttle, aileron = struct.unpack("<4H", data)
-
-            # ===== Servo control =====
-            # Reversed elevator servo
-            duty1 = us_to_duty(map_servo(4095 - elevator))  # reversed
-            servo1.duty_u16(duty1)
-
-            duty2 = us_to_duty(map_servo(4095 -aileron))
-            servo2.duty_u16(duty2)
-
-            # ===== Motor throttle control =====
-            motor_speed = int((throttle / 4095) * 65535)
-            for m in motors:
-                m.duty_u16(motor_speed)
-
-            print(f"ELEV={elevator} RUD={rudder} THR={throttle} AIL={aileron}")
-
-    except OSError:
-        # Timeout: check connection
-        if client_address and utime.ticks_diff(utime.ticks_ms(), last_packet_time) > CONNECTION_TIMEOUT_MS:
-            print("Connection lost. No data received.")
-            client_address = None
+        # Print individual values with names
+        print(f"elevator = {elevator}, rudder= {rudder}, trottel = {trottel}")
