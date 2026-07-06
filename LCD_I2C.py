@@ -1,15 +1,19 @@
-from machine import Pin, I2C
+from machine import Pin, SoftI2C
 from time import ticks_ms, ticks_diff
 from lcd_api import LcdApi
-from machine_i2c_lcd import I2cLcd
+from i2c_lcd import I2cLcd
+
 
 # === LCD SETUP ===
-i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=400000)
+i2c = SoftI2C(scl=Pin(11), sda=Pin(3), freq=400000)
 devices = i2c.scan()
 if not devices:
+    
     print("No I2C LCD found.")
     while True:
         pass
+    
+    
 
 lcd = I2cLcd(i2c, devices[0], 2, 16)
 lcd.clear()

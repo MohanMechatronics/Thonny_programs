@@ -5,11 +5,11 @@ import math
 
 # Configuration
 LED_PIN = 21
-LED_COUNT = 39  # Number of LEDs
+LED_COUNT = 5 # Number of LEDs
 np = neopixel.NeoPixel(machine.Pin(LED_PIN), LED_COUNT)
 
 # Set brightness scale (0.0 to 1.0)
-BRIGHTNESS = 0.3
+BRIGHTNESS = 0.5
 
 def apply_brightness(color):
     return tuple(int(c * BRIGHTNESS) for c in color)

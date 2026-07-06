@@ -5,7 +5,6 @@ import espnow
 import struct
 import motor
 
-
 #############################################################
 from machine import Pin
 import time

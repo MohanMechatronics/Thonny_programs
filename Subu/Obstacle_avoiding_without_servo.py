@@ -21,8 +21,7 @@ class Ultrasonic:
         time.sleep_us(10)
         self.trig.value(0)
 
-        duration = time_pulse_us(self.echo, 1, 3
-                                 0000)
+        duration = time_pulse_us(self.echo, 1, 30000)
         if duration < 0:
             return 999  # timeout or error
         distance = (duration / 2) / 29.1  # cm
@@ -30,18 +29,18 @@ class Ultrasonic:
 
 
 def move_forward(wheels):
-    wheels.drive_motors(512, 0, 512, 0)
+    wheels.drive_motors(1000, 0, 1000, 0)
 
 
 def turn_left(wheels):
-    wheels.drive_motors(512, 0, 0, 512)
+    wheels.drive_motors(1000, 0, 0, 1000)
 
 
 def turn_right(wheels):
-    wheels.drive_motors(0, 512, 512, 0)
+    wheels.drive_motors(0, 1000, 1000, 0)
     
 def move_backward(wheels):
-    wheels.drive_motors(0,512,0,512)
+    wheels.drive_motors(0,1000,0,1000)
 
 def stop_wheels(wheels):
     wheels.drive_motors(0,0,0,0)
@@ -49,7 +48,7 @@ def stop_wheels(wheels):
 
 
 def main():
-    wheels = Wheels("LMES2")
+    wheels = Wheels()
     wheels.start_motors()
     sonar = Ultrasonic(TRIG_PIN, ECHO_PIN)
 

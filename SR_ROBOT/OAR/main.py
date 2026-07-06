@@ -9,7 +9,7 @@ led = machine.Pin(27, machine.Pin.OUT) # For testing the program is running
 led.on()
 
 robot = motor.car()
-sensor = ultra.sensor()
+sensor = ultra.Sensor()
 servo = neck.servo()
 
 right_dis = 0

@@ -5,7 +5,7 @@ import utime
 # Configuration
 NUM_LEDS = 60
 CENTER_LED = 30
-DATA_PIN = 3
+DATA_PIN = 12
 BRIGHTNESS = 0.6  # Scale from 0 to 1
 
 # Difficulty levels

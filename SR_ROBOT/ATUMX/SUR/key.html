@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motor Control with Webcam</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 600px; /* Limit the width of the entire container */
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      margin: 20px auto; /* Center the container horizontally and give some margin at the top */
+    }
+
+    /* Webcam feed container */
+    .webcam {
+      width: 100%;
+      height: 250px;  /* Fixed height for the webcam */
+      position: relative; /* Necessary for positioning the iframe */
+      margin-bottom: 15px;
+      overflow: hidden; /* Hide overflowed content */
+    }
+
+    /* Styling for the iframe */
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      object-fit: contain; /* Ensures the webcam feed fits inside the iframe without cropping */
+      /* object-fit: cover; -- You can use this if you prefer cropping to fill */
+    }
+
+    .control-panel {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 100px); /* Reduced button width for compactness */
+      gap: 8px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 14px; /* Smaller font size for a more compact design */
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border-radius: 5px; /* Rounded corners for the buttons */
+    }
+
+    button.disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+
+    button.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Webcam Feed Section -->
+    <div class="webcam">
+      <h2 style="font-size: 18px; text-align: center;">Live Webcam Feed</h2>
+      <iframe src="http://192.168.4.5" allowfullscreen></iframe>
+    </div>
+
+    <!-- Motor Controls Section -->
+    <div class="control-panel">
+      <h2 style="font-size: 18px; text-align: center;">Motor Controls</h2>
+      <div class="controls">
+        <div></div>
+        <button id="forward">Forward</button>
+        <div></div>
+
+        <button id="left">Left</button>
+        <button id="stop">Stop</button>
+        <button id="right">Right</button>
+
+        <div></div>
+        <button id="back">Back</button>
+        <div></div>
+      </div>
+      <p id="status">Waiting for input...</p>
+    </div>
+  </div>
+
+  <script>
+    const baseURL = 'http://192.168.4.1';
+    const statusEl = document.getElementById('status');
+    let keyHeld = null;
+    
+    function sendCommand(command) {
+      const url = `${baseURL}/${command}?`;
+      statusEl.innerText = `Sending: ${command}`;
+
+      fetch(url, { method: 'POST' })
+        .then(response => {
+          if (!response.ok) throw new Error(`Failed POST to ${url}`);
+          console.log(`POST sent to ${url}`);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Keyboard events
+    const keyCommandMap = {
+      'ArrowUp': 'forward',
+      'ArrowDown': 'back',
+      'ArrowLeft': 'left',
+      'ArrowRight': 'right'
+    };
+
+    document.addEventListener('keydown', (e) => {
+      const cmd = keyCommandMap[e.key];
+      if (cmd && keyHeld !== e.key) {
+        keyHeld = e.key;
+        sendCommand(cmd); // Send command when key is pressed
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (keyCommandMap[e.key]) {
+        keyHeld = null;
+        sendCommand('stop'); // Stop command when key is released
+      }
+    });
+
+    // Button events
+    const buttons = ['forward', 'back', 'left', 'right', 'stop'];
+    buttons.forEach(cmd => {
+      const btn = document.getElementById(cmd);
+      
+      // Mouse events
+      btn.addEventListener('mousedown', () => sendCommand(cmd));
+      btn.addEventListener('mouseup', () => {
+        if (cmd !== 'stop') sendCommand('stop');
+      });
+
+      // Touch events
+      btn.addEventListener('touchstart', () => sendCommand(cmd));
+      btn.addEventListener('touchend', () => {
+        if (cmd !== 'stop') sendCommand('stop');
+      });
+    });
+  </script>
+
+</body>
+</html>

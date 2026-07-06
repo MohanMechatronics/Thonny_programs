@@ -15,7 +15,7 @@ station.disconnect()
 protocol = espnow.ESPNow()
 protocol.active(True)
 
-mac = b'(V/I\xf9|'
+mac = b'L\xc3\x82\xcfP\x1c'
 
 protocol.add_peer(mac)
 
